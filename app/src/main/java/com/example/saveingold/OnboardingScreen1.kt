@@ -1,10 +1,9 @@
 package com.example.saveingold
 
-import android.annotation.SuppressLint
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
+import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,15 +13,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.SuccessResult
+import androidx.palette.graphics.Palette
 import com.example.saveingold.model.EducationCard
 import com.example.saveingold.model.SaveButtonCta
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun OnboardingScreen(viewModel: OnboardingViewModel) {
@@ -38,7 +44,6 @@ fun OnboardingScreen(viewModel: OnboardingViewModel) {
     }
 }
 
-@SuppressLint("RememberReturnType")
 @Composable
 fun CardAnimationScreen(cards: List<EducationCard>, expandDuration: Long, cta: SaveButtonCta) {
     var expandedIndex by remember { mutableStateOf(0) }
@@ -51,7 +56,7 @@ fun CardAnimationScreen(cards: List<EducationCard>, expandDuration: Long, cta: S
             val isExpanded = index == expandedIndex
             CardItem(
                 card = card,
-                index= index,
+                index = index,
                 isExpanded = isExpanded,
                 onClick = {
                     if (!isExpanded) {
@@ -67,6 +72,27 @@ fun CardAnimationScreen(cards: List<EducationCard>, expandDuration: Long, cta: S
 
 @Composable
 fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -> Unit) {
+    var backgroundColor by remember { mutableStateOf(Color.White) }
+    val context = LocalContext.current
+
+    LaunchedEffect(card.image) {
+        val request = ImageRequest.Builder(context)
+            .data(card.image)
+            .allowHardware(false) // Required to get Bitmap
+            .build()
+
+        withContext(Dispatchers.IO) {
+            val imageLoader = ImageLoader(context)
+            val result = (imageLoader.execute(request) as? SuccessResult)?.drawable
+            val bitmap = (result as? BitmapDrawable)?.bitmap
+
+            bitmap?.let {
+                val palette = Palette.from(it).generate()
+                backgroundColor = Color(palette.getDominantColor(android.graphics.Color.WHITE))
+            }
+        }
+    }
+
     val targetHeight = if (isExpanded) 444.dp else 100.dp
     val height by animateDpAsState(
         targetValue = targetHeight,
@@ -78,10 +104,9 @@ fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -
         modifier = Modifier
             .fillMaxWidth()
             .height(height)
+            .background(backgroundColor)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isExpanded) Color.White else Color.Transparent
-        ),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
         shape = RoundedCornerShape(16.dp)
     ) {
         Box(
@@ -110,7 +135,6 @@ fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -
                     1 -> R.drawable.card2
                     else -> R.drawable.card1
                 }
-
                 Image(
                     painter = painterResource(id = imageRes),
                     contentDescription = "Card Image",
@@ -123,7 +147,6 @@ fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -
         }
     }
 }
-
 
 @Composable
 fun CTAButton(cta: SaveButtonCta) {
