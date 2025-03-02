@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object OnboardingRepository {
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://run.mocky.io/") // Replace with actual base URL
+        .baseUrl("https://run.mocky.io/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

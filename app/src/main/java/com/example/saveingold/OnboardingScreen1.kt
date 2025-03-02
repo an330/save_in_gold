@@ -80,12 +80,12 @@ fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -
             .height(height)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
-            containerColor = if (isExpanded) Color.White else Color.Transparent // No background in collapsed state
+            containerColor = if (isExpanded) Color.White else Color.Transparent
         ),
         shape = RoundedCornerShape(16.dp)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(), // Removed extra padding
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             if (isExpanded) {
@@ -116,7 +116,7 @@ fun CardItem(card: EducationCard, index: Int, isExpanded: Boolean, onClick: () -
                     contentDescription = "Card Image",
                     modifier = Modifier
                         .width(296.dp)
-                        .height(100.dp) // Adjusted height to match collapsed state
+                        .height(100.dp)
                         .clip(MaterialTheme.shapes.medium)
                 )
             }

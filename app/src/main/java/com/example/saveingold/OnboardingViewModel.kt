@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class OnboardingViewModel : ViewModel() {
-    private val _onboardingData = MutableStateFlow<OnboardingData?>(null)  // Make it nullable
+    private val _onboardingData = MutableStateFlow<OnboardingData?>(null)
     val onboardingData: StateFlow<OnboardingData?> = _onboardingData
 
 
